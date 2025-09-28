@@ -7,10 +7,33 @@ import { SortableContext, verticalListSortingStrategy, arrayMove, useSortable } 
 import { CSS } from '@dnd-kit/utilities'
 
 function CategoryRow({ category, onRename, onDelete, onDropPrompt }) {
+  const [isDragOver, setIsDragOver] = useState(false)
+
   return (
-    <div className="group flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/60"
-      onDragOver={(e) => { e.preventDefault() }}
-      onDrop={(e) => { const id = e.dataTransfer.getData('text/prompt-id'); if (id) onDropPrompt(id, category.id) }}
+    <div className={`group flex items-center justify-between rounded-md px-2 py-1.5 transition-colors ${
+      isDragOver
+        ? 'bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-300 dark:border-blue-600'
+        : 'hover:bg-zinc-100/70 dark:hover:bg-zinc-900/60'
+    }`}
+      onDragOver={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDragOver(true)
+      }}
+      onDragLeave={(e) => {
+        e.preventDefault()
+        setIsDragOver(false)
+      }}
+      onDrop={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDragOver(false)
+        const id = e.dataTransfer.getData('text/prompt-id')
+        console.log('Dropping prompt:', id, 'into category:', category.id)
+        if (id) {
+          onDropPrompt(id, category.id)
+        }
+      }}
       title="Drop prompts here">
       <NavLink 
         to={`/category/${category.id}`} 
@@ -28,13 +51,16 @@ function CategoryRow({ category, onRename, onDelete, onDropPrompt }) {
 }
 
 function SortableCategory({ id, children }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id,
+    data: { type: 'category' }
+  })
   const style = { transform: CSS.Transform.toString(transform), transition }
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
       <div className="flex items-center gap-2">
-        <div className="cursor-grab" {...listeners}>
-          <svg width="12" height="12" viewBox="0 0 16 16" className="text-zinc-400">
+        <div className="cursor-grab hover:cursor-grabbing" {...listeners}>
+          <svg width="12" height="12" viewBox="0 0 16 16" className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300">
             <circle cx="3" cy="6" r="1" fill="currentColor" />
             <circle cx="3" cy="10" r="1" fill="currentColor" />
             <circle cx="8" cy="6" r="1" fill="currentColor" />
@@ -43,7 +69,7 @@ function SortableCategory({ id, children }) {
             <circle cx="13" cy="10" r="1" fill="currentColor" />
           </svg>
         </div>
-        <div className="flex-1">{children}</div>
+        <div className="flex-1" style={{ pointerEvents: 'auto' }}>{children}</div>
       </div>
     </div>
   )
@@ -53,6 +79,7 @@ export function Sidebar() {
   const store = useVaultStore()
   const [creating, setCreating] = useState(false)
   const [name, setName] = useState('')
+  const [isUncategorizedDragOver, setIsUncategorizedDragOver] = useState(false)
 
   useEffect(() => {
     if (!store.ready) store.init()
@@ -111,9 +138,28 @@ export function Sidebar() {
         </form>
       )}
 
-      <div className="mt-3"
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => { const id = e.dataTransfer.getData('text/prompt-id'); if (id) store.movePrompt(id, '') }}
+      <div className={`mt-3 transition-colors ${
+        isUncategorizedDragOver
+          ? 'bg-gray-100 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-md p-2'
+          : ''
+      }`}
+        onDragOver={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setIsUncategorizedDragOver(true)
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault()
+          setIsUncategorizedDragOver(false)
+        }}
+        onDrop={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setIsUncategorizedDragOver(false)
+          const id = e.dataTransfer.getData('text/prompt-id')
+          console.log('Uncategorizing prompt:', id)
+          if (id) store.movePrompt(id, '')
+        }}
         title="Drop here to unassign category">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={categories.map((c) => c.id)} strategy={verticalListSortingStrategy}>

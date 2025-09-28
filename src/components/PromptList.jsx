@@ -45,8 +45,16 @@ function PromptCard({ prompt, onEdit, onDelete, onToggleFav }) {
 
   return (
     <div id={`prompt-${prompt.id}`} className="rounded-lg border border-gray-200 dark:border-[#464647] bg-white dark:bg-[#252526] p-4 shadow-lg dark:shadow-black/50 transition-all duration-300 hover:shadow-xl dark:hover:shadow-black/70"
-      draggable
-      onDragStart={(e) => { e.dataTransfer.setData('text/prompt-id', prompt.id); e.dataTransfer.effectAllowed = 'move' }}
+      draggable="true"
+      onDragStart={(e) => {
+        console.log('Starting drag for prompt:', prompt.id)
+        e.dataTransfer.setData('text/prompt-id', prompt.id)
+        e.dataTransfer.effectAllowed = 'move'
+        e.currentTarget.style.opacity = '0.5'
+      }}
+      onDragEnd={(e) => {
+        e.currentTarget.style.opacity = '1'
+      }}
       title="Drag to sidebar categories to move">
       <div className="flex items-start gap-3">
         <div className="flex-1 min-w-0">
