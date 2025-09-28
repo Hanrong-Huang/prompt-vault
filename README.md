@@ -11,7 +11,7 @@ A responsive web application for storing, organizing, and managing frequently us
 - 📱 **Responsive**: Works on desktop and mobile devices
 - 🔄 **Drag & Drop**: Reorder prompts and categories
 - 📤 **Import/Export**: JSON and CSV support
-- 💾 **Local Storage**: Data persists in your browser
+- 💾 **Local and Cloud Storage**: Data persists in browser and sync to supabase
 
 ## Live Demo
 
