@@ -1,0 +1,75 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+
+@source "../index.html";
+@source "./**/*.{js,jsx,ts,tsx,html}";
+
+/* Ensure proper dark mode support */
+:root {
+  color-scheme: light dark;
+}
+
+/* Cursor-like dark theme styles with improved visibility */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  background-color: #1e1e1e !important; /* Cursor's main background */
+  color: #ffffff !important; /* Brighter text for better visibility */
+}
+
+.dark #root {
+  background-color: #1e1e1e !important; /* Cursor's main background */
+  color: #ffffff !important; /* Brighter text for better visibility */
+}
+
+/* Ensure all main containers get Cursor dark background */
+.dark .min-h-screen {
+  background-color: #1e1e1e !important; /* Cursor's main background */
+}
+
+/* Cursor-like dark mode cards with better contrast */
+.dark .bg-white {
+  background-color: #252526 !important; /* Cursor's panel background */
+  border-color: #464647 !important; /* Brighter border for better visibility */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important; /* Stronger shadow */
+}
+
+/* Cursor-like dark mode header with better contrast */
+.dark .bg-white.dark\\:bg-gray-800 {
+  background-color: #2d2d30 !important; /* Cursor's title bar background */
+  border-color: #464647 !important; /* Brighter border */
+}
+
+/* Cursor-like input styling with better visibility */
+.dark input, .dark textarea {
+  background-color: #3c3c3c !important; /* Cursor's input background */
+  border-color: #5a5a5a !important; /* Brighter border for visibility */
+  color: #ffffff !important; /* Brighter text */
+}
+
+.dark input:focus, .dark textarea:focus {
+  border-color: #007acc !important; /* Cursor's focus color */
+  outline: 2px solid #007acc !important; /* Thicker outline for visibility */
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2) !important; /* Glow effect */
+}
+
+/* Improve button visibility */
+.dark button {
+  color: #ffffff !important;
+}
+
+.dark button:hover {
+  background-color: #2a2d2e !important;
+}
+
+/* Better text contrast for all elements */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  color: #ffffff !important;
+}
+
+.dark p, .dark span, .dark div {
+  color: #e0e0e0 !important; /* Slightly dimmed but still bright */
+}
