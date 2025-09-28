@@ -12,7 +12,10 @@ function copyToClipboard(text, onSuccess) {
 }
 
 function SortablePrompt({ id, children }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+    data: { type: 'prompt' }
+  })
   const style = { transform: CSS.Transform.toString(transform), transition }
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
@@ -27,7 +30,7 @@ function SortablePrompt({ id, children }) {
             <circle cx="13" cy="10" r="1" fill="currentColor" />
           </svg>
         </div>
-        <div className="flex-1">{children}</div>
+        <div className="flex-1" style={{ pointerEvents: 'auto' }}>{children}</div>
       </div>
     </div>
   )
@@ -44,18 +47,7 @@ function PromptCard({ prompt, onEdit, onDelete, onToggleFav }) {
   }
 
   return (
-    <div id={`prompt-${prompt.id}`} className="rounded-lg border border-gray-200 dark:border-[#464647] bg-white dark:bg-[#252526] p-4 shadow-lg dark:shadow-black/50 transition-all duration-300 hover:shadow-xl dark:hover:shadow-black/70"
-      draggable="true"
-      onDragStart={(e) => {
-        console.log('Starting drag for prompt:', prompt.id)
-        e.dataTransfer.setData('text/prompt-id', prompt.id)
-        e.dataTransfer.effectAllowed = 'move'
-        e.currentTarget.style.opacity = '0.5'
-      }}
-      onDragEnd={(e) => {
-        e.currentTarget.style.opacity = '1'
-      }}
-      title="Drag to sidebar categories to move">
+    <div id={`prompt-${prompt.id}`} className="rounded-lg border border-gray-200 dark:border-[#464647] bg-white dark:bg-[#252526] p-4 shadow-lg dark:shadow-black/50 transition-all duration-300 hover:shadow-xl dark:hover:shadow-black/70">
       <div className="flex items-start gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -99,7 +91,6 @@ export function PromptList({ categoryId, showFavorites }) {
   const store = useVaultStore()
   const [editing, setEditing] = useState(null)
   const [creating, setCreating] = useState(false)
-  const sensors = useSensors(useSensor(PointerSensor))
 
   useEffect(() => { if (!store.ready) store.init() }, [store.ready])
 
@@ -114,23 +105,6 @@ export function PromptList({ categoryId, showFavorites }) {
     return [...list].sort((a, b) => (a.order || 0) - (b.order || 0))
   }, [store.prompts, store.filter, categoryId, showFavorites])
 
-  async function handleDragEnd(event) {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    const ids = prompts.map((p) => p.id)
-    const fromIndex = ids.indexOf(active.id)
-    const toIndex = ids.indexOf(over.id)
-    const reordered = arrayMove(ids, fromIndex, toIndex)
-    
-    if (showFavorites) {
-      // For favorites, reorder globally across all prompts
-      await store.reorderPrompts?.('', reordered)
-    } else {
-      // For category-specific prompts, reorder within the category
-      await store.reorderPrompts?.(categoryId || '', reordered)
-    }
-  }
-
 
   return (
     <div className="flex flex-col gap-3">
@@ -144,15 +118,13 @@ export function PromptList({ categoryId, showFavorites }) {
       {editing && (
         <PromptEditor initial={editing} onSave={async (values) => { await store.updatePrompt(editing.id, values); setEditing(null) }} onCancel={() => setEditing(null)} />
       )}
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={prompts.map((p) => p.id)} strategy={verticalListSortingStrategy}>
-          {prompts.map((p) => (
-            <SortablePrompt id={p.id} key={p.id}>
-              <PromptCard prompt={p} onEdit={setEditing} onDelete={(p) => store.deletePrompt(p.id)} onToggleFav={(p) => store.updatePrompt(p.id, { favorite: !p.favorite })} />
-            </SortablePrompt>
-          ))}
-        </SortableContext>
-      </DndContext>
+      <SortableContext items={prompts.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+        {prompts.map((p) => (
+          <SortablePrompt id={p.id} key={p.id}>
+            <PromptCard prompt={p} onEdit={setEditing} onDelete={(p) => store.deletePrompt(p.id)} onToggleFav={(p) => store.updatePrompt(p.id, { favorite: !p.favorite })} />
+          </SortablePrompt>
+        ))}
+      </SortableContext>
     </div>
   )
 }

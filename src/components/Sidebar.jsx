@@ -2,46 +2,28 @@ import { useEffect, useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Plus, Pencil, Trash2, Star, Share2 } from 'lucide-react'
 import { useVaultStore } from '../store/useVaultStore.js'
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove, useSortable } from '@dnd-kit/sortable'
+import { useDroppable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 
-function CategoryRow({ category, onRename, onDelete, onDropPrompt }) {
-  const [isDragOver, setIsDragOver] = useState(false)
-
+function CategoryRow({ category, onRename, onDelete, isOver }) {
   return (
-    <div className={`group flex items-center justify-between rounded-md px-2 py-1.5 transition-colors ${
-      isDragOver
-        ? 'bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-300 dark:border-blue-600'
+    <div className={`group flex items-center justify-between rounded-md px-2 py-1.5 transition-colors w-full ${
+      isOver
+        ? 'bg-blue-100/50 dark:bg-blue-900/20'
         : 'hover:bg-zinc-100/70 dark:hover:bg-zinc-900/60'
     }`}
-      onDragOver={(e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        setIsDragOver(true)
-      }}
-      onDragLeave={(e) => {
-        e.preventDefault()
-        setIsDragOver(false)
-      }}
-      onDrop={(e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        setIsDragOver(false)
-        const id = e.dataTransfer.getData('text/prompt-id')
-        console.log('Dropping prompt:', id, 'into category:', category.id)
-        if (id) {
-          onDropPrompt(id, category.id)
-        }
-      }}
       title="Drop prompts here">
-      <NavLink 
-        to={`/category/${category.id}`} 
+      <NavLink
+        to={`/category/${category.id}`}
         className={({ isActive }) => `text-left flex-1 truncate ${isActive ? 'font-medium text-blue-600 dark:text-blue-400' : ''}`}
+        onClick={(e) => isOver && e.preventDefault()}
       >
         {category.name}
       </NavLink>
-      <div className="opacity-0 group-hover:opacity-100 transition-opacity ml-2 flex items-center gap-1">
+      <div className={`transition-opacity ml-2 flex items-center gap-1 ${
+        isOver ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'
+      }`}>
         <button aria-label="Share" onClick={() => navigator.clipboard?.writeText(`${location.origin}/category/${category.id}`)} className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800"><Share2 size={14} /></button>
         <button aria-label="Rename" onClick={() => onRename(category)} className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800"><Pencil size={14} /></button>
         <button aria-label="Delete" onClick={() => onDelete(category)} className="p-1 rounded hover:bg-red-100 text-red-600 dark:hover:bg-red-900/30"><Trash2 size={14} /></button>
@@ -50,26 +32,63 @@ function CategoryRow({ category, onRename, onDelete, onDropPrompt }) {
   )
 }
 
-function SortableCategory({ id, children }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+function SortableCategory({ id, children, category, onRename, onDelete }) {
+  // Sortable functionality for reordering categories
+  const { attributes, listeners, setNodeRef: setSortableNodeRef, transform, transition } = useSortable({
     id,
     data: { type: 'category' }
   })
+
+  // Droppable functionality for receiving prompts
+  const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
+    id: id,
+    data: { type: 'category', category }
+  })
+
+  // Combine both refs
+  const setRefs = (element) => {
+    setSortableNodeRef(element)
+    setDroppableNodeRef(element)
+  }
+
   const style = { transform: CSS.Transform.toString(transform), transition }
+
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
-      <div className="flex items-center gap-2">
-        <div className="cursor-grab hover:cursor-grabbing" {...listeners}>
-          <svg width="12" height="12" viewBox="0 0 16 16" className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300">
-            <circle cx="3" cy="6" r="1" fill="currentColor" />
-            <circle cx="3" cy="10" r="1" fill="currentColor" />
-            <circle cx="8" cy="6" r="1" fill="currentColor" />
-            <circle cx="8" cy="10" r="1" fill="currentColor" />
-            <circle cx="13" cy="6" r="1" fill="currentColor" />
-            <circle cx="13" cy="10" r="1" fill="currentColor" />
-          </svg>
-        </div>
-        <div className="flex-1" style={{ pointerEvents: 'auto' }}>{children}</div>
+    <div ref={setRefs} style={style} {...attributes} className="flex items-center gap-2 w-full">
+      <div className="cursor-grab hover:cursor-grabbing" {...listeners}>
+        <svg width="12" height="12" viewBox="0 0 16 16" className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300">
+          <circle cx="3" cy="6" r="1" fill="currentColor" />
+          <circle cx="3" cy="10" r="1" fill="currentColor" />
+          <circle cx="8" cy="6" r="1" fill="currentColor" />
+          <circle cx="8" cy="10" r="1" fill="currentColor" />
+          <circle cx="13" cy="6" r="1" fill="currentColor" />
+          <circle cx="13" cy="10" r="1" fill="currentColor" />
+        </svg>
+      </div>
+      <div className="flex-1">
+        <CategoryRow category={category} onRename={onRename} onDelete={onDelete} isOver={isOver} />
+      </div>
+    </div>
+  )
+}
+
+function UncategorizedDropZone() {
+  const { isOver, setNodeRef } = useDroppable({
+    id: 'uncategorized',
+    data: { type: 'uncategorized' }
+  })
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`mt-2 p-3 rounded-md border-2 border-dashed transition-colors ${
+        isOver
+          ? 'border-gray-400 bg-gray-100 dark:bg-gray-800'
+          : 'border-gray-300 dark:border-gray-600'
+      }`}
+    >
+      <div className="text-sm text-gray-500 dark:text-gray-400 text-center">
+        Drop here to remove from category
       </div>
     </div>
   )
@@ -79,7 +98,6 @@ export function Sidebar() {
   const store = useVaultStore()
   const [creating, setCreating] = useState(false)
   const [name, setName] = useState('')
-  const [isUncategorizedDragOver, setIsUncategorizedDragOver] = useState(false)
 
   useEffect(() => {
     if (!store.ready) store.init()
@@ -109,18 +127,6 @@ export function Sidebar() {
     }
   }
 
-  const sensors = useSensors(useSensor(PointerSensor))
-
-  async function handleDragEnd(event) {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    const ids = categories.map((c) => c.id)
-    const fromIndex = ids.indexOf(active.id)
-    const toIndex = ids.indexOf(over.id)
-    const reordered = arrayMove(ids, fromIndex, toIndex)
-    await store.reorderCategories(reordered)
-  }
-
   return (
     <div className="rounded-lg border border-gray-200 dark:border-[#464647] bg-white dark:bg-[#252526] p-4 shadow-lg dark:shadow-black/50 transition-all duration-300">
       <nav className="flex flex-col gap-1 text-sm mb-2">
@@ -138,38 +144,20 @@ export function Sidebar() {
         </form>
       )}
 
-      <div className={`mt-3 transition-colors ${
-        isUncategorizedDragOver
-          ? 'bg-gray-100 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-md p-2'
-          : ''
-      }`}
-        onDragOver={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          setIsUncategorizedDragOver(true)
-        }}
-        onDragLeave={(e) => {
-          e.preventDefault()
-          setIsUncategorizedDragOver(false)
-        }}
-        onDrop={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          setIsUncategorizedDragOver(false)
-          const id = e.dataTransfer.getData('text/prompt-id')
-          console.log('Uncategorizing prompt:', id)
-          if (id) store.movePrompt(id, '')
-        }}
-        title="Drop here to unassign category">
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={categories.map((c) => c.id)} strategy={verticalListSortingStrategy}>
-            {categories.map((cat) => (
-              <SortableCategory id={cat.id} key={cat.id}>
-                <CategoryRow category={cat} onRename={handleRename} onDelete={handleDelete} onDropPrompt={store.movePrompt} />
-              </SortableCategory>
-            ))}
-          </SortableContext>
-        </DndContext>
+      <div className="mt-3">
+        <SortableContext items={categories.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+          {categories.map((cat) => (
+            <SortableCategory
+              id={cat.id}
+              key={cat.id}
+              category={cat}
+              onRename={handleRename}
+              onDelete={handleDelete}
+            />
+          ))}
+        </SortableContext>
+
+        <UncategorizedDropZone />
       </div>
     </div>
   )

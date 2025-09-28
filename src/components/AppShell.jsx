@@ -5,6 +5,8 @@ import Papa from 'papaparse'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useVaultStore } from '../store/useVaultStore.js'
 import { getState, saveState } from '../lib/storage.js'
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { arrayMove } from '@dnd-kit/sortable'
 
 function useTheme() {
   const [theme, setTheme] = useState(() => {
@@ -46,6 +48,62 @@ export function AppShell() {
   const { theme, toggle } = useTheme()
   const store = useVaultStore()
   const fileRef = useRef(null)
+  const sensors = useSensors(useSensor(PointerSensor))
+
+  async function handleDragEnd(event) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    console.log('Drag ended:', { active: active.id, over: over.id, overData: over.data?.current, activeData: active.data?.current })
+
+    // Check if dropping on a category (sidebar)
+    if (over.data?.current?.type === 'category') {
+      console.log('Moving prompt to category:', over.id)
+      await store.movePrompt(active.id, over.id)
+      return
+    }
+
+    // Check if dropping on uncategorized area
+    if (over.id === 'uncategorized') {
+      console.log('Uncategorizing prompt')
+      await store.movePrompt(active.id, '')
+      return
+    }
+
+    // Handle category reordering
+    if (active.data?.current?.type === 'category' && over.data?.current?.type === 'category') {
+      const categories = store.categories.sort((a, b) => a.order - b.order)
+      const ids = categories.map(c => c.id)
+      const fromIndex = ids.indexOf(active.id)
+      const toIndex = ids.indexOf(over.id)
+      const reordered = arrayMove(ids, fromIndex, toIndex)
+      await store.reorderCategories(reordered)
+      return
+    }
+
+    // Handle prompt reordering (both should be prompts)
+    if (active.data?.current?.type === 'prompt' && over.data?.current?.type === 'prompt') {
+      // Get current prompts in the visible list
+      const activePrompt = store.prompts.find(p => p.id === active.id)
+      const overPrompt = store.prompts.find(p => p.id === over.id)
+
+      if (activePrompt && overPrompt) {
+        // Filter prompts to match current view (same category or all favorites)
+        let currentPrompts = store.prompts
+
+        // If both prompts are in the same category, reorder within that category
+        if (activePrompt.categoryId === overPrompt.categoryId) {
+          currentPrompts = store.prompts.filter(p => p.categoryId === activePrompt.categoryId)
+          const ids = currentPrompts.sort((a, b) => (a.order || 0) - (b.order || 0)).map(p => p.id)
+          const fromIndex = ids.indexOf(active.id)
+          const toIndex = ids.indexOf(over.id)
+          const reordered = arrayMove(ids, fromIndex, toIndex)
+          await store.reorderPrompts(activePrompt.categoryId || '', reordered)
+        }
+      }
+      return
+    }
+  }
 
   async function handleExportJSON() {
     const data = await getState()
@@ -172,14 +230,16 @@ export function AppShell() {
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <aside className="lg:col-span-3">
-            <Sidebar />
-          </aside>
-          <section className="lg:col-span-9 min-h-[50vh]">
-            <Outlet />
-          </section>
-        </div>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <aside className="lg:col-span-3">
+              <Sidebar />
+            </aside>
+            <section className="lg:col-span-9 min-h-[50vh]">
+              <Outlet />
+            </section>
+          </div>
+        </DndContext>
       </main>
     </div>
   )
