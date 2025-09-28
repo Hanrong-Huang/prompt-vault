@@ -12,13 +12,15 @@ function now() {
 }
 
 function getSupabase() {
-  const url = import.meta.env.VITE_SUPABASE_URL
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+  const url = import.meta.env.VITE_SUPABASE_URL || 'https://iunkkfuovjaavgcmnhsd.supabase.co'
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1bmtrZnVvdmphYXZnY21uaHNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwNDgzNDUsImV4cCI6MjA3NDYyNDM0NX0.ZNDEHa9qYqLD2GvK5XdRxn9uPdl0-AsF9__GWqzRXGE'
   console.log('Supabase config:', {
     hasUrl: !!url,
     hasKey: !!anonKey,
     urlLength: url?.length || 0,
-    keyLength: anonKey?.length || 0
+    keyLength: anonKey?.length || 0,
+    envUrl: import.meta.env.VITE_SUPABASE_URL,
+    envKey: import.meta.env.VITE_SUPABASE_ANON_KEY
   })
   if (!url || !anonKey) return null
   return createClient(url, anonKey)
