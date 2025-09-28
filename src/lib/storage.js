@@ -14,6 +14,12 @@ function now() {
 function getSupabase() {
   const url = import.meta.env.VITE_SUPABASE_URL
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+  console.log('Supabase config:', {
+    hasUrl: !!url,
+    hasKey: !!anonKey,
+    urlLength: url?.length || 0,
+    keyLength: anonKey?.length || 0
+  })
   if (!url || !anonKey) return null
   return createClient(url, anonKey)
 }
