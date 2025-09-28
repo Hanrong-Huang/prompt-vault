@@ -1,0 +1,37 @@
+-- Update the prompt_vault table with seed data
+UPDATE prompt_vault
+SET data = '{
+  "categories": [
+    {"id": "cat_seed_1", "name": "Asking", "createdAt": 1727520000000, "updatedAt": 1727520000000, "order": 1},
+    {"id": "cat_seed_2", "name": "Planning", "createdAt": 1727520000000, "updatedAt": 1727520000000, "order": 2},
+    {"id": "cat_seed_3", "name": "Coding", "createdAt": 1727520000000, "updatedAt": 1727520000000, "order": 3},
+    {"id": "cat_seed_4", "name": "Debugging", "createdAt": 1727520000000, "updatedAt": 1727520000000, "order": 4},
+    {"id": "cat_seed_5", "name": "Reviewing", "createdAt": 1727520000000, "updatedAt": 1727520000000, "order": 5},
+    {"id": "cat_seed_6", "name": "Refactoring", "createdAt": 1727520000000, "updatedAt": 1727520000000, "order": 6},
+    {"id": "cat_seed_7", "name": "Docs/Comments", "createdAt": 1727520000000, "updatedAt": 1727520000000, "order": 7}
+  ],
+  "prompts": [
+    {"id": "p_seed_1", "title": "Clarify Requirements", "text": "Please clarify the specific requirements and constraints for this task. What are the expected inputs, outputs, and edge cases I should consider?", "categoryId": "cat_seed_1", "favorite": false, "order": 1, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_2", "title": "Ask for Examples", "text": "Can you provide 2-3 concrete examples of what you''re looking for? This will help me understand the pattern and deliver exactly what you need.", "categoryId": "cat_seed_1", "favorite": false, "order": 2, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_3", "title": "Scope Confirmation", "text": "Before I proceed, let me confirm the scope: [summarize understanding]. Is this correct, or should I adjust my approach?", "categoryId": "cat_seed_1", "favorite": false, "order": 3, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_4", "title": "Break Down Task", "text": "Break this down into smaller, manageable steps with clear priorities. What should be tackled first and what can wait?", "categoryId": "cat_seed_2", "favorite": false, "order": 4, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_5", "title": "Architecture Planning", "text": "Help me design a clean, scalable architecture for this feature. What are the key components and how should they interact?", "categoryId": "cat_seed_2", "favorite": false, "order": 5, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_6", "title": "Risk Assessment", "text": "What potential issues or blockers should I be aware of with this approach? How can we mitigate these risks early?", "categoryId": "cat_seed_2", "favorite": false, "order": 6, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_7", "title": "Clean Code Request", "text": "Write clear, simple code that focuses on the core functionality. Avoid over-engineering and keep it maintainable. Remove any unused functions.", "categoryId": "cat_seed_3", "favorite": false, "order": 7, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_8", "title": "Minimal Conditionals", "text": "Implement this with minimal use of elif/else statements. Use early returns and guard clauses instead of nested conditionals where possible.", "categoryId": "cat_seed_3", "favorite": false, "order": 8, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_9", "title": "Single Responsibility", "text": "Create focused functions that do one thing well. Each function should have a clear, single purpose and be easy to test.", "categoryId": "cat_seed_3", "favorite": false, "order": 9, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_10", "title": "Systematic Debug", "text": "Help me debug this step by step: 1) Identify the expected vs actual behavior, 2) Isolate the problem area, 3) Check common causes.", "categoryId": "cat_seed_4", "favorite": false, "order": 10, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_11", "title": "Error Analysis", "text": "Analyze this error message and suggest the most likely causes and solutions, starting with the simplest fixes first.", "categoryId": "cat_seed_4", "favorite": false, "order": 11, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_12", "title": "Reproduction Steps", "text": "Provide minimal steps to reliably reproduce this issue, including the exact environment and input conditions.", "categoryId": "cat_seed_4", "favorite": false, "order": 12, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_13", "title": "Code Review", "text": "Review this code for: 1) Logic correctness, 2) Performance issues, 3) Security concerns, 4) Maintainability improvements.", "categoryId": "cat_seed_5", "favorite": false, "order": 13, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_14", "title": "Best Practices Check", "text": "Does this code follow best practices? Check for proper error handling, naming conventions, and adherence to SOLID principles.", "categoryId": "cat_seed_5", "favorite": false, "order": 14, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_15", "title": "Test Coverage", "text": "What test cases should I write for this code? Include happy path, edge cases, and error conditions.", "categoryId": "cat_seed_5", "favorite": false, "order": 15, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_16", "title": "Simplify Code", "text": "Help me refactor this code to be simpler and more readable while maintaining the same functionality. Remove any unnecessary complexity.", "categoryId": "cat_seed_6", "favorite": false, "order": 16, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_17", "title": "Extract Functions", "text": "Identify opportunities to extract reusable functions from this code. Focus on reducing duplication and improving modularity.", "categoryId": "cat_seed_6", "favorite": false, "order": 17, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_18", "title": "Improve Performance", "text": "Suggest performance improvements for this code. Focus on algorithmic efficiency and removing bottlenecks.", "categoryId": "cat_seed_6", "favorite": false, "order": 18, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_19", "title": "Function Documentation", "text": "Write clear, concise documentation for this function including purpose, parameters, return value, and usage examples.", "categoryId": "cat_seed_7", "favorite": false, "order": 19, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_20", "title": "README Section", "text": "Create a clear README section explaining how to set up, use, and contribute to this project. Include examples and common issues.", "categoryId": "cat_seed_7", "favorite": false, "order": 20, "createdAt": 1727520000000, "updatedAt": 1727520000000},
+    {"id": "p_seed_21", "title": "Inline Comments", "text": "Add helpful inline comments explaining the \"why\" behind complex logic, not just the \"what\". Focus on business logic and non-obvious decisions.", "categoryId": "cat_seed_7", "favorite": false, "order": 21, "createdAt": 1727520000000, "updatedAt": 1727520000000}
+  ]
+}'
+WHERE id = 1;
