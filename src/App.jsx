@@ -14,7 +14,9 @@ const router = createBrowserRouter([
       { path: 'category/:id', element: <CategoryRoute /> },
     ],
   },
-])
+], {
+  basename: '/prompt-vault'
+})
 
 export default function App() {
   return <RouterProvider router={router} />
