@@ -1,14 +1,25 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <title>Redirecting…</title>
-    <meta http-equiv="refresh" content="0; url=/prompt-vault/">
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/prompt-vault/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prompt Vault - AI Prompt Manager</title>
     <script>
-      window.location.replace('/prompt-vault/');
+      // Apply theme immediately to prevent flash
+      const theme = localStorage.getItem('theme') || 'dark';
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
+      }
     </script>
+    <script type="module" crossorigin src="/prompt-vault/assets/index-HYNOwI4s.js"></script>
+    <link rel="stylesheet" crossorigin href="/prompt-vault/assets/index-DWTaiaar.css">
   </head>
-  <body>
-    Redirecting to <a href="/prompt-vault/">/prompt-vault/</a>…
+  <body class="min-h-screen">
+    <div id="root" class="min-h-screen"></div>
   </body>
 </html>
