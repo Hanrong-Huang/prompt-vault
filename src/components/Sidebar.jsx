@@ -8,7 +8,7 @@ import { CSS } from '@dnd-kit/utilities'
 
 function CategoryRow({ category, onRename, onDelete, isOver }) {
   return (
-    <div className={`group flex items-center justify-between rounded-md px-2 py-1.5 transition-colors w-full ${
+    <div className={`group flex items-center justify-between rounded-md px-2 py-1.5 transition-colors duration-150 w-full ${
       isOver
         ? 'bg-blue-100/50 dark:bg-blue-900/20'
         : 'hover:bg-zinc-100/70 dark:hover:bg-zinc-900/60'
@@ -21,7 +21,7 @@ function CategoryRow({ category, onRename, onDelete, isOver }) {
       >
         {category.name}
       </NavLink>
-      <div className={`transition-opacity ml-2 flex items-center gap-1 ${
+      <div className={`transition-opacity duration-150 ml-2 flex items-center gap-1 ${
         isOver ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'
       }`}>
         <button aria-label="Share" onClick={() => navigator.clipboard?.writeText(`${location.origin}/category/${category.id}`)} className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800"><Share2 size={14} /></button>
@@ -81,7 +81,7 @@ function UncategorizedDropZone() {
   return (
     <div
       ref={setNodeRef}
-      className={`mt-2 p-3 rounded-md border-2 border-dashed transition-colors ${
+      className={`mt-2 p-3 rounded-md border-2 border-dashed transition-colors duration-150 ${
         isOver
           ? 'border-gray-400 bg-gray-100 dark:bg-gray-800'
           : 'border-gray-300 dark:border-gray-600'
@@ -128,10 +128,10 @@ export function Sidebar() {
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-[#464647] bg-white dark:bg-[#252526] p-4 shadow-lg dark:shadow-black/50 transition-all duration-300">
+    <div className="rounded-lg border border-gray-200 dark:border-[#464647] bg-white dark:bg-[#252526] p-4 shadow-lg dark:shadow-black/50 transition-colors duration-150">
       <nav className="flex flex-col gap-1 text-sm mb-2">
-        <NavLink to="/" end className={({ isActive }) => `rounded-md px-2 py-1.5 transition-all duration-200 ${isActive ? 'bg-[#007acc] text-white shadow-sm' : 'hover:bg-[#2a2d2e] text-white'}`}>All</NavLink>
-        <NavLink to="/favorites" className={({ isActive }) => `rounded-md px-2 py-1.5 flex items-center gap-2 transition-all duration-200 ${isActive ? 'bg-[#007acc] text-white shadow-sm' : 'hover:bg-[#2a2d2e] text-white'}`}><Star size={14} className="text-amber-500" /> Favorites</NavLink>
+        <NavLink to="/" end className={({ isActive }) => `rounded-md px-2 py-1.5 transition-colors duration-150 ${isActive ? 'bg-[#007acc] text-white shadow-sm' : 'hover:bg-gray-100 dark:hover:bg-[#2a2d2e] text-gray-900 dark:!text-white'}`}>All</NavLink>
+        <NavLink to="/favorites" className={({ isActive }) => `rounded-md px-2 py-1.5 flex items-center gap-2 transition-colors duration-150 ${isActive ? 'bg-[#007acc] text-white shadow-sm' : 'hover:bg-gray-100 dark:hover:bg-[#2a2d2e] text-gray-900 dark:!text-white'}`}><Star size={14} className="text-amber-500" /> Favorites</NavLink>
       </nav>
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-medium">Categories</h2>

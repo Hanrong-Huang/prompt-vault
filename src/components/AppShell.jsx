@@ -198,8 +198,8 @@ export function AppShell() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-[#1e1e1e] dark:text-white transition-colors duration-300">
-      <header className="sticky top-0 z-10 border-b border-gray-200 dark:border-[#464647] bg-white dark:bg-[#2d2d30] shadow-lg dark:shadow-black/50 transition-all duration-300">
+    <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-[#1e1e1e] dark:text-white transition-colors duration-150">
+      <header className="sticky top-0 z-10 border-b border-gray-200 dark:border-[#464647] bg-white dark:bg-[#2d2d30] shadow-lg dark:shadow-black/50 transition-all duration-150">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center gap-3">
           <Link to="/" className="font-semibold tracking-tight">Prompt Vault</Link>
           <div className="ml-auto flex items-center gap-2">
@@ -216,9 +216,9 @@ export function AppShell() {
                 <Download size={16} />
                 <span className="hidden sm:inline">Export</span>
               </button>
-              <div className="absolute right-0 top-full mt-1 hidden group-hover:block bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md shadow-lg z-10">
-                <button onClick={handleExportJSON} className="block w-full text-left px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 whitespace-nowrap">Export JSON</button>
-                <button onClick={handleExportCSV} className="block w-full text-left px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 whitespace-nowrap">Export CSV</button>
+              <div className="absolute right-0 top-full mt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md shadow-lg z-10">
+                <button onClick={handleExportJSON} className="block w-full text-left px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 whitespace-nowrap rounded-t-md">Export JSON</button>
+                <button onClick={handleExportCSV} className="block w-full text-left px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 whitespace-nowrap rounded-b-md">Export CSV</button>
               </div>
             </div>
             <button onClick={() => fileRef.current?.click()} className="inline-flex items-center gap-2 rounded-md border border-zinc-200 dark:border-zinc-800 px-2.5 py-1.5 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-900" title="Import JSON or CSV">
