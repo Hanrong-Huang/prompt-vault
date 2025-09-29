@@ -15,7 +15,7 @@ const router = createBrowserRouter([
     ],
   },
 ], {
-  basename: '/prompt-vault'
+  basename: import.meta.env.PROD && window.location.hostname.includes('github.io') ? '/prompt-vault' : '/'
 })
 
 export default function App() {
