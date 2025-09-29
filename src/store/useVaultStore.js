@@ -1,7 +1,7 @@
 import { create } from 'zustand'
-import { getState, saveState, createCategory, renameCategory, deleteCategory, reorderCategories, createPrompt, updatePrompt, deletePrompt, movePrompt, reorderPrompts } from '../lib/storage.js'
+import { getState, createCategory, renameCategory, deleteCategory, reorderCategories, createPrompt, updatePrompt, deletePrompt, movePrompt, reorderPrompts } from '../lib/storage.js'
 
-export const useVaultStore = create((set, get) => ({
+export const useVaultStore = create((set) => ({
   ready: false,
   categories: [],
   prompts: [],
