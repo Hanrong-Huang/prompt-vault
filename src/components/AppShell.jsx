@@ -2,11 +2,11 @@ import { Link, NavLink, Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar.jsx'
 import { Moon, Sun, Search, Upload, Download } from 'lucide-react'
 import Papa from 'papaparse'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useVaultStore } from '../store/useVaultStore.js'
 import { getState, saveState } from '../lib/storage.js'
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
-import { arrayMove } from '@dnd-kit/sortable'
+import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 
 function useTheme() {
   const [theme, setTheme] = useState(() => {
@@ -48,7 +48,16 @@ export function AppShell() {
   const { theme, toggle } = useTheme()
   const store = useVaultStore()
   const fileRef = useRef(null)
-  const sensors = useSensors(useSensor(PointerSensor))
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement required to start dragging
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   async function handleDragEnd(event) {
     const { active, over } = event
@@ -88,17 +97,53 @@ export function AppShell() {
       const overPrompt = store.prompts.find(p => p.id === over.id)
 
       if (activePrompt && overPrompt) {
-        // Filter prompts to match current view (same category or all favorites)
-        let currentPrompts = store.prompts
-
-        // If both prompts are in the same category, reorder within that category
-        if (activePrompt.categoryId === overPrompt.categoryId) {
-          currentPrompts = store.prompts.filter(p => p.categoryId === activePrompt.categoryId)
+        // Check what view we're currently in to determine reordering scope
+        const currentPath = window.location.pathname
+        
+        if (currentPath === '/prompt-vault' || currentPath === '/prompt-vault/') {
+          // Global view - reorder all prompts globally
+          const allPrompts = store.prompts.sort((a, b) => (a.order || 0) - (b.order || 0))
+          const ids = allPrompts.map(p => p.id)
+          const fromIndex = ids.indexOf(active.id)
+          const toIndex = ids.indexOf(over.id)
+          const reordered = arrayMove(ids, fromIndex, toIndex)
+          await store.reorderPrompts('', reordered)
+        } else if (currentPath === '/prompt-vault/favorites') {
+          // Favorites view - reorder within favorites
+          const favoritePrompts = store.prompts.filter(p => p.favorite).sort((a, b) => (a.order || 0) - (b.order || 0))
+          const ids = favoritePrompts.map(p => p.id)
+          const fromIndex = ids.indexOf(active.id)
+          const toIndex = ids.indexOf(over.id)
+          const reordered = arrayMove(ids, fromIndex, toIndex)
+          await store.reorderPrompts('', reordered)
+        } else if (activePrompt.categoryId === overPrompt.categoryId) {
+          // Same category - reorder within that category
+          const currentPrompts = store.prompts.filter(p => p.categoryId === activePrompt.categoryId)
           const ids = currentPrompts.sort((a, b) => (a.order || 0) - (b.order || 0)).map(p => p.id)
           const fromIndex = ids.indexOf(active.id)
           const toIndex = ids.indexOf(over.id)
           const reordered = arrayMove(ids, fromIndex, toIndex)
           await store.reorderPrompts(activePrompt.categoryId || '', reordered)
+        } else {
+          // Different categories - move the active prompt to the over prompt's category and position
+          // First move the prompt to the target category
+          await store.movePrompt(active.id, overPrompt.categoryId)
+          
+          // Then reorder within the new category
+          const targetCategoryPrompts = store.prompts.filter(p => p.categoryId === overPrompt.categoryId)
+          const ids = targetCategoryPrompts.sort((a, b) => (a.order || 0) - (b.order || 0)).map(p => p.id)
+          
+          // Remove the active prompt if it's already in the list (after move)
+          const activeIndex = ids.indexOf(active.id)
+          if (activeIndex !== -1) {
+            ids.splice(activeIndex, 1)
+          }
+          
+          // Insert it at the target position
+          const targetIndex = ids.indexOf(over.id)
+          ids.splice(targetIndex + 1, 0, active.id)
+          
+          await store.reorderPrompts(overPrompt.categoryId || '', ids)
         }
       }
       return
@@ -146,7 +191,7 @@ export function AppShell() {
         const json = JSON.parse(text)
         await saveState(json)
         await store.init()
-      } catch (err) {
+      } catch {
         alert('Invalid JSON file')
       } finally {
         e.target.value = ''
@@ -180,7 +225,7 @@ export function AppShell() {
               await store.createPrompt({ title, text, categoryId, favorite })
             }
             alert('CSV imported successfully')
-          } catch (err) {
+          } catch {
             alert('Failed to import CSV')
           } finally {
             e.target.value = ''

@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Copy, Pencil, Trash2, Star, StarOff, Plus } from 'lucide-react'
 import { useVaultStore } from '../store/useVaultStore.js'
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
-import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable'
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
 function copyToClipboard(text, onSuccess) {
@@ -16,11 +15,22 @@ function SortablePrompt({ id, children }) {
     id,
     data: { type: 'prompt' }
   })
-  const style = { transform: CSS.Transform.toString(transform), transition }
+  
+  const style = { 
+    transform: CSS.Transform.toString(transform), 
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 999 : 'auto'
+  }
+  
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
       <div className="flex items-center gap-2">
-        <div className="cursor-grab hover:cursor-grabbing" {...listeners}>
+        <div 
+          className="cursor-grab hover:cursor-grabbing touch-none" 
+          {...listeners}
+          style={{ touchAction: 'none' }}
+        >
           <svg width="16" height="16" viewBox="0 0 16 16" className="text-[#858585] hover:text-white transition-colors">
             <circle cx="3" cy="6" r="1" fill="currentColor" />
             <circle cx="3" cy="10" r="1" fill="currentColor" />

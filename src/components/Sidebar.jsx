@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Plus, Pencil, Trash2, Star, Share2 } from 'lucide-react'
 import { useVaultStore } from '../store/useVaultStore.js'
-import { SortableContext, verticalListSortingStrategy, arrayMove, useSortable } from '@dnd-kit/sortable'
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { useDroppable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 
@@ -32,7 +32,7 @@ function CategoryRow({ category, onRename, onDelete, isOver }) {
   )
 }
 
-function SortableCategory({ id, children, category, onRename, onDelete }) {
+function SortableCategory({ id, category, onRename, onDelete }) {
   // Sortable functionality for reordering categories
   const { attributes, listeners, setNodeRef: setSortableNodeRef, transform, transition } = useSortable({
     id,
@@ -55,7 +55,7 @@ function SortableCategory({ id, children, category, onRename, onDelete }) {
 
   return (
     <div ref={setRefs} style={style} {...attributes} className="flex items-center gap-2 w-full">
-      <div className="cursor-grab hover:cursor-grabbing" {...listeners}>
+      <div className="cursor-grab hover:cursor-grabbing touch-none" {...listeners} style={{ touchAction: 'none' }}>
         <svg width="12" height="12" viewBox="0 0 16 16" className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300">
           <circle cx="3" cy="6" r="1" fill="currentColor" />
           <circle cx="3" cy="10" r="1" fill="currentColor" />
