@@ -53,6 +53,21 @@ const SEED_CATEGORIES = [
     { title: 'Function Documentation', text: 'Write clear, concise documentation for this function including purpose, parameters, return value, and usage examples.' },
     { title: 'README Section', text: 'Create a clear README section explaining how to set up, use, and contribute to this project. Include examples and common issues.' },
     { title: 'Inline Comments', text: 'Add helpful inline comments explaining the "why" behind complex logic, not just the "what". Focus on business logic and non-obvious decisions.' }
+  ]},
+  { name: 'Testing', prompts: [
+    { title: 'Unit Tests', text: 'List minimal unit tests for [module]: happy path, edge cases, and failure modes.' },
+    { title: 'Integration Flow', text: 'Outline an integration test for [feature]: setup, steps, expected outputs, and teardown.' },
+    { title: 'Boundary Checks', text: 'Enumerate boundary inputs for [function] and the expected handling for each.' }
+  ]},
+  { name: 'Performance', prompts: [
+    { title: 'Measure First', text: 'Suggest a lightweight measurement plan for [code]: metrics, tools, and success thresholds.' },
+    { title: 'Hotspots', text: 'Identify likely hotspots and cheaper algorithmic alternatives before micro-optimizations.' },
+    { title: 'Data Size Sensitivity', text: 'Assess how performance scales with input size and propose guardrails.' }
+  ]},
+  { name: 'Prompting', prompts: [
+    { title: 'Task Framing', text: 'Rewrite [task] with clear objective, constraints, and acceptance criteria. Ask 2 clarifying questions.' },
+    { title: 'Few-shot Examples', text: 'Create 2–3 examples showing ideal outputs for [task], plus one counterexample.' },
+    { title: 'Self-Check Step', text: 'Add a final checklist to verify constraints, correctness, and tone before answering.' }
   ]}
 ]
 
