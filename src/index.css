@@ -73,3 +73,8 @@
 .dark p, .dark span, .dark div {
   color: #e0e0e0 !important; /* Slightly dimmed but still bright */
 }
+
+/* Fix navigation links in dark theme */
+html.dark nav a:not([class*="bg-[#007acc]"]) {
+  color: white !important;
+}
