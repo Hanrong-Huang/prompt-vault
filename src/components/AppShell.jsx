@@ -2,11 +2,11 @@ import { Link, NavLink, Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar.jsx'
 import { Moon, Sun, Search, Upload, Download } from 'lucide-react'
 import Papa from 'papaparse'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useVaultStore } from '../store/useVaultStore.js'
 import { getState, saveState } from '../lib/storage.js'
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
-import { arrayMove } from '@dnd-kit/sortable'
+import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 
 function useTheme() {
   const [theme, setTheme] = useState(() => {
@@ -48,7 +48,16 @@ export function AppShell() {
   const { theme, toggle } = useTheme()
   const store = useVaultStore()
   const fileRef = useRef(null)
-  const sensors = useSensors(useSensor(PointerSensor))
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement required to start dragging
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   async function handleDragEnd(event) {
     const { active, over } = event
@@ -146,7 +155,7 @@ export function AppShell() {
         const json = JSON.parse(text)
         await saveState(json)
         await store.init()
-      } catch (err) {
+      } catch {
         alert('Invalid JSON file')
       } finally {
         e.target.value = ''
@@ -180,7 +189,7 @@ export function AppShell() {
               await store.createPrompt({ title, text, categoryId, favorite })
             }
             alert('CSV imported successfully')
-          } catch (err) {
+          } catch {
             alert('Failed to import CSV')
           } finally {
             e.target.value = ''
