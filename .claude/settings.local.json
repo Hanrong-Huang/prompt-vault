@@ -6,9 +6,18 @@
       "mcp__chrome-devtools__evaluate_script",
       "mcp__chrome-devtools__navigate_page",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "powershell -NoProfile -Command \"Write-Host -NoNewline ((Get-Location | Split-Path -Leaf) + ' | ' + (try { git branch --show-current } catch { 'no git' }))\""
   }
 }
