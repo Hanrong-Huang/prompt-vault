@@ -86,10 +86,10 @@ function PromptEditor({ initial, onSave, onCancel }) {
   return (
     <form onSubmit={(e) => { e.preventDefault(); onSave({ title, text }) }} className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-4">
       <div className="flex gap-2">
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" className="flex-1 rounded-md border border-zinc-200 dark:border-zinc-800 bg-transparent px-2 py-1 text-sm" />
-        <div className="flex gap-2">
-          <button className="rounded-md bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-3 py-1 text-sm">Save</button>
-          <button type="button" className="rounded-md border border-zinc-200 dark:border-zinc-800 px-3 py-1 text-sm" onClick={onCancel}>Cancel</button>
+        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" className="flex-1 min-w-0 rounded-md border border-zinc-200 dark:border-zinc-800 bg-transparent px-2 py-1 text-sm" />
+        <div className="flex gap-2 shrink-0">
+          <button className="rounded-md border border-zinc-900 dark:border-white bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-3 py-1 text-sm whitespace-nowrap">Save</button>
+          <button type="button" className="rounded-md border border-zinc-200 dark:border-zinc-800 px-3 py-1 text-sm whitespace-nowrap" onClick={onCancel}>Cancel</button>
         </div>
       </div>
       <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Prompt text" rows={6} className="mt-2 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-transparent px-2 py-1 text-sm"></textarea>
