@@ -26,8 +26,26 @@ function CategoryRow({ category, onRename, onDelete, isOver, isActive }) {
       <div className={`transition-opacity duration-150 ml-2 flex items-center gap-1 ${
         isOver ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'
       }`}>
-        <button aria-label="Rename" onClick={() => onRename(category)} className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800"><Pencil size={14} /></button>
-        <button aria-label="Delete" onClick={() => onDelete(category)} className="p-1 rounded hover:bg-red-100 text-red-600 dark:hover:bg-red-900/30"><Trash2 size={14} /></button>
+        <button 
+          aria-label="Rename" 
+          onClick={(e) => {
+            e.stopPropagation()
+            onRename(category)
+          }} 
+          className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800"
+        >
+          <Pencil size={14} />
+        </button>
+        <button 
+          aria-label="Delete" 
+          onClick={(e) => {
+            e.stopPropagation()
+            onDelete(category)
+          }} 
+          className="p-1 rounded hover:bg-red-100 text-red-600 dark:hover:bg-red-900/30"
+        >
+          <Trash2 size={14} />
+        </button>
       </div>
     </div>
   )
@@ -58,13 +76,15 @@ function SortableCategory({ id, category, onRename, onDelete }) {
   const style = { transform: CSS.Transform.toString(transform), transition }
 
   return (
-    <div ref={setRefs} style={style} {...attributes} className="flex items-center gap-2 w-full">
-      <div 
-        className="cursor-grab hover:cursor-grabbing touch-none flex-shrink-0" 
-        {...listeners} 
-        style={{ touchAction: 'none' }}
-        title="Drag to reorder"
-      >
+    <div 
+      ref={setRefs} 
+      style={{ ...style, touchAction: 'none' }} 
+      {...attributes} 
+      {...listeners}
+      className="flex items-center gap-2 w-full cursor-grab hover:cursor-grabbing"
+      title="Drag to reorder"
+    >
+      <div className="flex-shrink-0">
         <svg width="12" height="12" viewBox="0 0 16 16" className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300">
           <circle cx="3" cy="6" r="1" fill="currentColor" />
           <circle cx="3" cy="10" r="1" fill="currentColor" />
