@@ -90,6 +90,7 @@ async function mergeSeedCategories(state) {
   let maxOrder = state.categories.reduce((m, c) => Math.max(m, c.order || 0), 0)
   const toAdd = []
   for (const seedCat of SEED_CATEGORIES) {
+    // Only add seed categories that don't exist AND haven't been deleted
     if (!namesLower.has(seedCat.name.toLowerCase()) && !deletedNamesLower.has(seedCat.name.toLowerCase())) {
       changed = true
       maxOrder += 1

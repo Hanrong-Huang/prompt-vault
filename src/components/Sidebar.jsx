@@ -59,7 +59,12 @@ function SortableCategory({ id, category, onRename, onDelete }) {
 
   return (
     <div ref={setRefs} style={style} {...attributes} className="flex items-center gap-2 w-full">
-      <div className="cursor-grab hover:cursor-grabbing touch-none" {...listeners} style={{ touchAction: 'none' }}>
+      <div 
+        className="cursor-grab hover:cursor-grabbing touch-none flex-shrink-0" 
+        {...listeners} 
+        style={{ touchAction: 'none' }}
+        title="Drag to reorder"
+      >
         <svg width="12" height="12" viewBox="0 0 16 16" className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300">
           <circle cx="3" cy="6" r="1" fill="currentColor" />
           <circle cx="3" cy="10" r="1" fill="currentColor" />
