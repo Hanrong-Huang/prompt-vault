@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { set as idbSet, get as idbGet } from 'idb-keyval'
 
 const STORAGE_KEY = 'prompt-vault-v2'
+const DELETED_CATEGORIES_KEY = 'prompt-vault-deleted-categories'
 
 function generateId(prefix = 'id') {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36)}`
@@ -9,6 +10,16 @@ function generateId(prefix = 'id') {
 
 function now() {
   return Date.now()
+}
+
+async function getDeletedCategories() {
+  const data = (await idbGet(DELETED_CATEGORIES_KEY)) || JSON.parse(localStorage.getItem(DELETED_CATEGORIES_KEY) || '[]')
+  return data
+}
+
+async function saveDeletedCategories(deletedCategories) {
+  localStorage.setItem(DELETED_CATEGORIES_KEY, JSON.stringify(deletedCategories))
+  await idbSet(DELETED_CATEGORIES_KEY, deletedCategories)
 }
 
 function getSupabase() {
@@ -71,13 +82,15 @@ const SEED_CATEGORIES = [
   ]}
 ]
 
-function mergeSeedCategories(state) {
+async function mergeSeedCategories(state) {
+  const deletedCategories = await getDeletedCategories()
+  const deletedNamesLower = new Set(deletedCategories.map((c) => c.toLowerCase()))
   const namesLower = new Set(state.categories.map((c) => c.name.toLowerCase()))
   let changed = false
   let maxOrder = state.categories.reduce((m, c) => Math.max(m, c.order || 0), 0)
   const toAdd = []
   for (const seedCat of SEED_CATEGORIES) {
-    if (!namesLower.has(seedCat.name.toLowerCase())) {
+    if (!namesLower.has(seedCat.name.toLowerCase()) && !deletedNamesLower.has(seedCat.name.toLowerCase())) {
       changed = true
       maxOrder += 1
       toAdd.push({ id: generateId('cat'), name: seedCat.name, createdAt: now(), updatedAt: now(), order: maxOrder })
@@ -89,7 +102,7 @@ function mergeSeedCategories(state) {
 
 async function readLocal() {
   const data = (await idbGet(STORAGE_KEY)) || JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null')
-  if (data) return mergeSeedCategories(data)
+  if (data) return await mergeSeedCategories(data)
   
   const nowTs = now()
   const seedCats = SEED_CATEGORIES.map((cat, i) => ({ 
@@ -134,7 +147,7 @@ export async function getState() {
   const { data, error } = await supabase.from('prompt_vault').select('data').single()
   if (error && error.code !== 'PGRST116') return readLocal()
   if (!data || !data.data) return readLocal()
-  return mergeSeedCategories(data.data)
+  return await mergeSeedCategories(data.data)
 }
 
 export async function saveState(state) {
@@ -162,6 +175,22 @@ export async function renameCategory(id, name) {
 
 export async function deleteCategory(id) {
   const state = await getState()
+  const categoryToDelete = state.categories.find(c => c.id === id)
+  
+  // Track deleted seed categories to prevent them from being re-added
+  if (categoryToDelete) {
+    const isSeedCategory = SEED_CATEGORIES.some(seedCat => 
+      seedCat.name.toLowerCase() === categoryToDelete.name.toLowerCase()
+    )
+    
+    if (isSeedCategory) {
+      const deletedCategories = await getDeletedCategories()
+      if (!deletedCategories.includes(categoryToDelete.name)) {
+        await saveDeletedCategories([...deletedCategories, categoryToDelete.name])
+      }
+    }
+  }
+  
   const categories = state.categories.filter((c) => c.id !== id)
   const prompts = state.prompts.map((p) => (p.categoryId === id ? { ...p, categoryId: '' } : p))
   const next = { ...state, categories, prompts }
@@ -219,6 +248,12 @@ export async function reorderPrompts(categoryId, idsInOrder) {
     const next = { ...state, prompts }
     await saveState(next)
   }
+}
+
+export async function restoreDeletedCategory(categoryName) {
+  const deletedCategories = await getDeletedCategories()
+  const updatedDeleted = deletedCategories.filter(name => name !== categoryName)
+  await saveDeletedCategories(updatedDeleted)
 }
 
 
