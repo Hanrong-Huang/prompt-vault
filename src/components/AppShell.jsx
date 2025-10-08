@@ -51,7 +51,7 @@ export function AppShell() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // 8px movement required to start dragging
+        distance: 3, // 3px movement required to start dragging
       },
     }),
     useSensor(KeyboardSensor, {
@@ -63,18 +63,14 @@ export function AppShell() {
     const { active, over } = event
     if (!over || active.id === over.id) return
 
-    console.log('Drag ended:', { active: active.id, over: over.id, overData: over.data?.current, activeData: active.data?.current })
-
     // Check if dropping on a category (sidebar)
     if (over.data?.current?.type === 'category') {
-      console.log('Moving prompt to category:', over.id)
       await store.movePrompt(active.id, over.id)
       return
     }
 
     // Check if dropping on uncategorized area
     if (over.id === 'uncategorized') {
-      console.log('Uncategorizing prompt')
       await store.movePrompt(active.id, '')
       return
     }
