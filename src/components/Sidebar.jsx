@@ -56,34 +56,38 @@ function SortableCategory({ id, category, onRename, onDelete }) {
   const isActive = location.pathname === `/category/${category.id}`
 
   // Sortable functionality for reordering categories
-  const { attributes, listeners, setNodeRef: setSortableNodeRef, transform, transition } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
-    data: { type: 'category' }
+    data: { type: 'category', category }
   })
 
   // Droppable functionality for receiving prompts
-  const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
-    id: id,
-    data: { type: 'category', category }
+  const { isOver: isDropOver, setNodeRef: setDroppableNodeRef } = useDroppable({
+    id: `drop-${id}`,
+    data: { type: 'category-drop', categoryId: id, category }
   })
 
   // Combine both refs
   const setRefs = (element) => {
-    setSortableNodeRef(element)
+    setNodeRef(element)
     setDroppableNodeRef(element)
   }
 
-  const style = { transform: CSS.Transform.toString(transform), transition }
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1
+  }
 
   return (
-    <div 
-      ref={setRefs} 
-      style={style} 
+    <div
+      ref={setRefs}
+      style={style}
       {...attributes}
       className="flex items-center gap-2 w-full"
     >
-      <div 
-        className="flex-shrink-0 cursor-grab hover:cursor-grabbing touch-none" 
+      <div
+        className="flex-shrink-0 cursor-grab hover:cursor-grabbing touch-none"
         {...listeners}
         style={{ touchAction: 'none' }}
         title="Drag to reorder"
@@ -98,7 +102,7 @@ function SortableCategory({ id, category, onRename, onDelete }) {
         </svg>
       </div>
       <div className="flex-1">
-        <CategoryRow category={category} onRename={onRename} onDelete={onDelete} isOver={isOver} isActive={isActive} />
+        <CategoryRow category={category} onRename={onRename} onDelete={onDelete} isOver={isDropOver} isActive={isActive} />
       </div>
     </div>
   )

@@ -63,9 +63,9 @@ export function AppShell() {
     const { active, over } = event
     if (!over || active.id === over.id) return
 
-    // Check if dropping on a category (sidebar)
-    if (over.data?.current?.type === 'category') {
-      await store.movePrompt(active.id, over.id)
+    // Check if dropping a prompt on a category drop zone (sidebar)
+    if (over.data?.current?.type === 'category-drop' && active.data?.current?.type === 'prompt') {
+      await store.movePrompt(active.id, over.data.current.categoryId)
       return
     }
 
@@ -81,8 +81,11 @@ export function AppShell() {
       const ids = categories.map(c => c.id)
       const fromIndex = ids.indexOf(active.id)
       const toIndex = ids.indexOf(over.id)
-      const reordered = arrayMove(ids, fromIndex, toIndex)
-      await store.reorderCategories(reordered)
+      if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
+        const reordered = arrayMove(ids, fromIndex, toIndex)
+        console.log('Reordering categories:', { fromIndex, toIndex, reordered })
+        await store.reorderCategories(reordered)
+      }
       return
     }
 
