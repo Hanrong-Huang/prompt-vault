@@ -68,12 +68,12 @@ function PromptCard({ prompt, onEdit, onDelete, onToggleFav }) {
         </div>
         <div className="flex flex-col gap-1">
           <div className="relative">
-            <button className="p-1 rounded hover:bg-[#2a2d2e] text-white transition-all duration-200 hover:scale-110" title="Copy" onClick={handleCopy}><Copy size={16} /></button>
+            <button className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#2a2d2e] text-gray-700 dark:text-white transition-all duration-200 hover:scale-110" title="Copy" onClick={handleCopy}><Copy size={16} /></button>
             {copyStatus && <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-xs px-2 py-1 rounded shadow-lg">{copyStatus}</div>}
           </div>
-          <button className="p-1 rounded hover:bg-[#2a2d2e] text-[#007acc] transition-all duration-200 hover:scale-110" title="Edit" onClick={() => onEdit(prompt)}><Pencil size={16} /></button>
-          <button className="p-1 rounded hover:bg-[#2a2d2e] text-[#f48771] transition-all duration-200 hover:scale-110" title="Delete" onClick={() => onDelete(prompt)}><Trash2 size={16} /></button>
-          <button className="p-1 rounded hover:bg-[#2a2d2e] text-[#dcdcaa] transition-all duration-200 hover:scale-110" title="Favorite" onClick={() => onToggleFav(prompt)}>{prompt.favorite ? <StarOff size={16} /> : <Star size={16} />}</button>
+          <button className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#2a2d2e] text-[#007acc] transition-all duration-200 hover:scale-110" title="Edit" onClick={() => onEdit(prompt)}><Pencil size={16} /></button>
+          <button className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#2a2d2e] text-[#f48771] transition-all duration-200 hover:scale-110" title="Delete" onClick={() => onDelete(prompt)}><Trash2 size={16} /></button>
+          <button className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#2a2d2e] text-orange-500 transition-all duration-200 hover:scale-110" title="Favorite" onClick={() => onToggleFav(prompt)}>{prompt.favorite ? <StarOff size={16} /> : <Star size={16} />}</button>
         </div>
       </div>
     </div>

@@ -32,9 +32,9 @@ function CategoryRow({ category, onRename, onDelete, isOver, isActive }) {
             e.stopPropagation()
             onRename(category)
           }} 
-          className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800"
+          className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
         >
-          <Pencil size={14} />
+          <Pencil size={14} className="stroke-current" />
         </button>
         <button 
           aria-label="Delete" 
