@@ -9,17 +9,21 @@ import { CSS } from '@dnd-kit/utilities'
 function CategoryRow({ category, onRename, onDelete, isOver, isActive }) {
   return (
     <div className={`group flex items-center justify-between rounded-md px-2 py-1.5 transition-colors duration-150 w-full ${
-      isOver
-        ? 'bg-blue-100/50 dark:bg-blue-900/20'
-        : isActive
-        ? 'bg-gray-500 dark:bg-gray-600'
-        : 'hover:bg-gray-500 dark:hover:bg-gray-600'
+      isOver || isActive
+        ? 'bg-gray-500 dark:bg-gray-600 text-white'
+        : 'hover:bg-gray-500 dark:hover:bg-gray-600 text-gray-900 dark:!text-white'
     }`}
       title="Drop prompts here">
       <NavLink
         to={`/category/${category.id}`}
         className="text-left flex-1 truncate"
-        onClick={(e) => isOver && e.preventDefault()}
+        onClick={(e) => {
+          if (isOver) {
+            e.preventDefault()
+            return false
+          }
+        }}
+        style={{ pointerEvents: isOver ? 'none' : 'auto' }}
       >
         {category.name}
       </NavLink>
@@ -51,27 +55,29 @@ function CategoryRow({ category, onRename, onDelete, isOver, isActive }) {
   )
 }
 
-function SortableCategory({ id, category, onRename, onDelete }) {
+function CategoryDropZone({ category, onRename, onDelete }) {
   const location = useLocation()
   const isActive = location.pathname === `/category/${category.id}`
 
+  // Droppable functionality for receiving prompts
+  const { isOver: isDropOver, setNodeRef } = useDroppable({
+    id: `drop-${category.id}`,
+    data: { type: 'category-drop', categoryId: category.id, category }
+  })
+
+  return (
+    <div ref={setNodeRef}>
+      <CategoryRow category={category} onRename={onRename} onDelete={onDelete} isOver={isDropOver} isActive={isActive && !isDropOver} />
+    </div>
+  )
+}
+
+function SortableCategory({ id, category, onRename, onDelete }) {
   // Sortable functionality for reordering categories
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
     data: { type: 'category', category }
   })
-
-  // Droppable functionality for receiving prompts
-  const { isOver: isDropOver, setNodeRef: setDroppableNodeRef } = useDroppable({
-    id: `drop-${id}`,
-    data: { type: 'category-drop', categoryId: id, category }
-  })
-
-  // Combine both refs
-  const setRefs = (element) => {
-    setNodeRef(element)
-    setDroppableNodeRef(element)
-  }
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -81,7 +87,7 @@ function SortableCategory({ id, category, onRename, onDelete }) {
 
   return (
     <div
-      ref={setRefs}
+      ref={setNodeRef}
       style={style}
       {...attributes}
       className="flex items-center gap-2 w-full"
@@ -102,7 +108,7 @@ function SortableCategory({ id, category, onRename, onDelete }) {
         </svg>
       </div>
       <div className="flex-1">
-        <CategoryRow category={category} onRename={onRename} onDelete={onDelete} isOver={isDropOver} isActive={isActive} />
+        <CategoryDropZone category={category} onRename={onRename} onDelete={onDelete} />
       </div>
     </div>
   )

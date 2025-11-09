@@ -15,22 +15,18 @@ function SortablePrompt({ id, children }) {
     id,
     data: { type: 'prompt' }
   })
-  
-  const style = { 
-    transform: CSS.Transform.toString(transform), 
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 999 : 'auto'
   }
-  
+
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
-      <div className="flex items-center gap-2">
-        <div 
-          className="cursor-grab hover:cursor-grabbing touch-none" 
-          {...listeners}
-          style={{ touchAction: 'none' }}
-        >
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <div className="flex items-start gap-2 cursor-grab hover:cursor-grabbing touch-none" style={{ touchAction: 'none' }}>
+        <div className="p-2 -ml-2 -mt-1 flex items-center">
           <svg width="16" height="16" viewBox="0 0 16 16" className="text-[#858585] hover:text-white transition-colors">
             <circle cx="3" cy="6" r="1" fill="currentColor" />
             <circle cx="3" cy="10" r="1" fill="currentColor" />
@@ -40,7 +36,7 @@ function SortablePrompt({ id, children }) {
             <circle cx="13" cy="10" r="1" fill="currentColor" />
           </svg>
         </div>
-        <div className="flex-1" style={{ pointerEvents: 'auto' }}>{children}</div>
+        <div className="flex-1">{children}</div>
       </div>
     </div>
   )

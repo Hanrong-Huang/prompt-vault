@@ -5,7 +5,7 @@ import Papa from 'papaparse'
 import { useEffect, useRef, useState } from 'react'
 import { useVaultStore } from '../store/useVaultStore.js'
 import { getState, saveState } from '../lib/storage.js'
-import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { DndContext, closestCenter, pointerWithin, rectIntersection, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 
 function useTheme() {
@@ -48,10 +48,11 @@ export function AppShell() {
   const { theme, toggle } = useTheme()
   const store = useVaultStore()
   const fileRef = useRef(null)
+  const lastOver = useRef(null)
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 3, // 3px movement required to start dragging
+        distance: 1, // Reduced to 1px to make dragging more responsive
       },
     }),
     useSensor(KeyboardSensor, {
@@ -59,20 +60,60 @@ export function AppShell() {
     })
   )
 
-  async function handleDragEnd(event) {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
+  function handleDragStart(event) {
+    if (event.active.data?.current?.type === 'prompt') {
+      lastOver.current = null
+    }
+  }
 
-    // Check if dropping a prompt on a category drop zone (sidebar)
-    if (over.data?.current?.type === 'category-drop' && active.data?.current?.type === 'prompt') {
-      await store.movePrompt(active.id, over.data.current.categoryId)
+  function handleDragOver(event) {
+    if (event.active.data?.current?.type === 'prompt' && event.over) {
+      lastOver.current = event.over
+    }
+  }
+
+  async function handleDragEnd(event) {
+    const { active } = event
+    const over = event.over ?? lastOver.current
+    lastOver.current = null
+
+    console.log('Drag end - active:', active.id, active.data?.current?.type)
+    console.log('Drag end - over:', over?.id, over?.data?.current?.type)
+
+    if (!over) {
+      console.log('No drop target found')
       return
     }
 
-    // Check if dropping on uncategorized area
-    if (over.id === 'uncategorized') {
-      await store.movePrompt(active.id, '')
+    if (active.id === over.id) {
+      console.log('Dropped on self')
       return
+    }
+
+    // Check if dropping a prompt on a category drop zone (sidebar)
+    if (active.data?.current?.type === 'prompt') {
+      if (over.data?.current?.type === 'category-drop') {
+        console.log('Moving prompt to category via data:', active.id, over.data.current.categoryId)
+        await store.movePrompt(active.id, over.data.current.categoryId)
+        return
+      }
+
+      // Also check by ID pattern in case data isn't set correctly
+      if (typeof over.id === 'string' && over.id.startsWith('drop-')) {
+        const categoryId = over.id.replace('drop-', '')
+        console.log('Moving prompt to category via ID pattern:', active.id, categoryId)
+        await store.movePrompt(active.id, categoryId)
+        return
+      }
+
+      // Check if dropping on uncategorized area
+      if (over.id === 'uncategorized') {
+        console.log('Moving prompt to uncategorized:', active.id)
+        await store.movePrompt(active.id, '')
+        return
+      }
+
+      console.log('No valid drop target found for prompt')
     }
 
     // Handle category reordering
@@ -274,7 +315,13 @@ export function AppShell() {
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6">
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <DndContext
+          sensors={sensors}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          collisionDetection={pointerWithin}
+          onDragEnd={handleDragEnd}
+        >
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <aside className="lg:col-span-3">
               <Sidebar />
